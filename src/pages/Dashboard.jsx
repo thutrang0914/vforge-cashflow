@@ -6,10 +6,10 @@ import PieChart from '../components/charts/PieChart';
 import BarChart from '../components/charts/BarChart';
 import {
   fmtShort, fmtMonth, sumBy, groupBy, getMonthRange,
-  getCategoryById, INCOME_CATEGORIES, CHART_COLORS,
+  getCategoryById, getIncomeCategories, CHART_COLORS,
 } from '../utils';
 
-export default function Dashboard({ transactions, budgets }) {
+export default function Dashboard({ transactions, budgets, categories }) {
   const currentMonth = getMonthRange(1)[0];
 
   const stats = useMemo(() => {
@@ -39,7 +39,7 @@ export default function Dashboard({ transactions, budgets }) {
       (t) => t.type === 'income' && t.date?.startsWith(currentMonth)
     );
     const grouped = groupBy(thisMonth, 'categoryId');
-    return INCOME_CATEGORIES.map((c, i) => ({
+    return getIncomeCategories(categories).map((c, i) => ({
       name: c.name,
       value: sumBy(grouped[c.id] || [], 'amount'),
       color: CHART_COLORS[i % CHART_COLORS.length],
@@ -54,11 +54,11 @@ export default function Dashboard({ transactions, budgets }) {
       const actualExpense = sumBy(mt.filter((t) => t.type === 'expense'), 'amount');
       const mb = budgets.filter((b) => b.month === m);
       const plannedIncome = sumBy(
-        mb.filter((b) => getCategoryById(b.categoryId)?.type === 'income'),
+        mb.filter((b) => getCategoryById(b.categoryId, categories)?.type === 'income'),
         'plannedAmount'
       );
       const plannedExpense = sumBy(
-        mb.filter((b) => getCategoryById(b.categoryId)?.type === 'expense'),
+        mb.filter((b) => getCategoryById(b.categoryId, categories)?.type === 'expense'),
         'plannedAmount'
       );
       return {

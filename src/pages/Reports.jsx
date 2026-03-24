@@ -3,7 +3,7 @@ import T from '../theme';
 import Btn from '../components/ui/Btn';
 import {
   fmtMoney, fmtMonth, getCurrentMonth, getMonthRange,
-  sumBy, groupBy, getCategoryById, INCOME_CATEGORIES, EXPENSE_CATEGORIES,
+  sumBy, groupBy, getCategoryById, getIncomeCategories, getExpenseCategories,
 } from '../utils';
 
 function ReportRow({ label, amount, bold, indent, color }) {
@@ -29,7 +29,7 @@ function ReportRow({ label, amount, bold, indent, color }) {
   );
 }
 
-export default function Reports({ transactions }) {
+export default function Reports({ transactions, categories }) {
   const [period, setPeriod] = useState('month');
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const months = getMonthRange(12);
@@ -52,10 +52,10 @@ export default function Reports({ transactions }) {
 
     const incomeByCategory = {};
     const expenseByCategory = {};
-    INCOME_CATEGORIES.forEach((c) => {
+    getIncomeCategories(categories).forEach((c) => {
       incomeByCategory[c.id] = sumBy(filtered.filter((t) => t.categoryId === c.id && t.type === 'income'), 'amount');
     });
-    EXPENSE_CATEGORIES.forEach((c) => {
+    getExpenseCategories(categories).forEach((c) => {
       expenseByCategory[c.id] = sumBy(filtered.filter((t) => t.categoryId === c.id && t.type === 'expense'), 'amount');
     });
 
@@ -74,13 +74,13 @@ export default function Reports({ transactions }) {
       rows.push(['Kỳ', period === 'month' ? fmtMonth(selectedMonth) : period === 'quarter' ? `Quý ${Math.floor((parseInt(selectedMonth.split('-')[1]) - 1) / 3) + 1}` : selectedMonth.split('-')[0]]);
       rows.push([]);
       rows.push(['THU NHẬP', '']);
-      INCOME_CATEGORIES.forEach((c) => {
+      getIncomeCategories(categories).forEach((c) => {
         rows.push([`  ${c.name}`, reportData.incomeByCategory[c.id] || 0]);
       });
       rows.push(['Tổng thu nhập', reportData.totalIncome]);
       rows.push([]);
       rows.push(['CHI PHÍ', '']);
-      EXPENSE_CATEGORIES.forEach((c) => {
+      getExpenseCategories(categories).forEach((c) => {
         rows.push([`  ${c.name}`, reportData.expenseByCategory[c.id] || 0]);
       });
       rows.push(['Tổng chi phí', reportData.totalExpense]);
@@ -129,14 +129,14 @@ export default function Reports({ transactions }) {
         border: `1px solid ${T.border}`, overflow: 'hidden',
       }}>
         <ReportRow label="THU NHẬP" amount={reportData.totalIncome} bold color={T.green} />
-        {INCOME_CATEGORIES.map((c) => (
+        {getIncomeCategories(categories).map((c) => (
           <ReportRow key={c.id} label={`${c.icon} ${c.name}`} amount={reportData.incomeByCategory[c.id] || 0} indent />
         ))}
 
         <div style={{ height: 8, background: T.bg }} />
 
         <ReportRow label="CHI PHÍ" amount={reportData.totalExpense} bold color={T.red} />
-        {EXPENSE_CATEGORIES.map((c) => (
+        {getExpenseCategories(categories).map((c) => (
           <ReportRow key={c.id} label={`${c.icon} ${c.name}`} amount={reportData.expenseByCategory[c.id] || 0} indent />
         ))}
 

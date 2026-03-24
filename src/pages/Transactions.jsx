@@ -8,19 +8,21 @@ import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import {
   fmtMoney, fmtDate, getCategoryById,
-  INCOME_CATEGORIES, EXPENSE_CATEGORIES, getCurrentMonth,
+  getIncomeCategories, getExpenseCategories,
 } from '../utils';
 
-function TransactionForm({ tx, onSave, onClose }) {
+function TransactionForm({ tx, onSave, onClose, categories }) {
   const [form, setForm] = useState(tx || {
     date: new Date().toISOString().slice(0, 10),
     amount: '',
     type: 'income',
-    categoryId: 'tuition',
+    categoryId: getIncomeCategories(categories)[0]?.id || 'tuition',
     description: '',
   });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const cats = form.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const cats = form.type === 'income'
+    ? getIncomeCategories(categories)
+    : getExpenseCategories(categories);
 
   return (
     <div>
@@ -29,7 +31,10 @@ function TransactionForm({ tx, onSave, onClose }) {
         value={form.type}
         onChange={(v) => {
           set('type', v);
-          set('categoryId', v === 'income' ? 'tuition' : 'salary');
+          const firstCat = v === 'income'
+            ? getIncomeCategories(categories)[0]
+            : getExpenseCategories(categories)[0];
+          set('categoryId', firstCat?.id || '');
         }}
         options={[
           { value: 'income', label: 'Thu nhập' },
@@ -53,7 +58,7 @@ function TransactionForm({ tx, onSave, onClose }) {
   );
 }
 
-export default function Transactions({ transactions, onAdd, onUpdate, onDelete }) {
+export default function Transactions({ transactions, categories, onAdd, onUpdate, onDelete }) {
   const [showForm, setShowForm] = useState(false);
   const [editTx, setEditTx] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -68,11 +73,11 @@ export default function Transactions({ transactions, onAdd, onUpdate, onDelete }
       const s = search.toLowerCase();
       list = list.filter((t) =>
         (t.description || '').toLowerCase().includes(s) ||
-        (getCategoryById(t.categoryId)?.name || '').toLowerCase().includes(s)
+        (getCategoryById(t.categoryId, categories)?.name || '').toLowerCase().includes(s)
       );
     }
     return list;
-  }, [transactions, filter, search, monthFilter]);
+  }, [transactions, filter, search, monthFilter, categories]);
 
   const months = useMemo(() => {
     const set = new Set(transactions.map((t) => t.date?.slice(0, 7)).filter(Boolean));
@@ -95,7 +100,7 @@ export default function Transactions({ transactions, onAdd, onUpdate, onDelete }
     {
       key: 'categoryId', title: 'Danh mục',
       render: (v) => {
-        const cat = getCategoryById(v);
+        const cat = getCategoryById(v, categories);
         return cat ? `${cat.icon} ${cat.name}` : v;
       },
     },
@@ -187,6 +192,7 @@ export default function Transactions({ transactions, onAdd, onUpdate, onDelete }
       >
         <TransactionForm
           tx={editTx}
+          categories={categories}
           onSave={handleSave}
           onClose={() => { setShowForm(false); setEditTx(null); }}
         />

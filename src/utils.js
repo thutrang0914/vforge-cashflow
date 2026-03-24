@@ -66,12 +66,24 @@ export const EXPENSE_CATEGORIES = [
   { id: 'other_expense', name: 'Chi khác', icon: '📦' },
 ];
 
-export const ALL_CATEGORIES = [
+export const DEFAULT_ALL_CATEGORIES = [
   ...INCOME_CATEGORIES.map((c) => ({ ...c, type: 'income' })),
   ...EXPENSE_CATEGORIES.map((c) => ({ ...c, type: 'expense' })),
 ];
 
-export const getCategoryById = (id) => ALL_CATEGORIES.find((c) => c.id === id);
+// Kept for backward compat — pages should prefer the dynamic list from App state
+export const ALL_CATEGORIES = DEFAULT_ALL_CATEGORIES;
+
+export const getCategoryById = (id, dynamicCategories) => {
+  const list = dynamicCategories || ALL_CATEGORIES;
+  return list.find((c) => c.id === id);
+};
+
+export const getIncomeCategories = (dynamicCategories) =>
+  (dynamicCategories || ALL_CATEGORIES).filter((c) => c.type === 'income');
+
+export const getExpenseCategories = (dynamicCategories) =>
+  (dynamicCategories || ALL_CATEGORIES).filter((c) => c.type === 'expense');
 
 export const CHART_COLORS = [
   '#3b82f6', '#22c55e', '#f59e0b', '#ef4444',

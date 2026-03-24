@@ -4,10 +4,10 @@ import TrendChart from '../components/charts/TrendChart';
 import Stat from '../components/ui/Stat';
 import {
   fmtShort, fmtMonth, sumBy, getMonthRange, getCategoryById,
-  INCOME_CATEGORIES, EXPENSE_CATEGORIES,
+  getIncomeCategories, getExpenseCategories,
 } from '../utils';
 
-export default function Forecast({ transactions, budgets }) {
+export default function Forecast({ transactions, budgets, categories }) {
   const forecast = useMemo(() => {
     const pastMonths = getMonthRange(6);
     const monthly = pastMonths.map((m) => {
@@ -94,8 +94,8 @@ export default function Forecast({ transactions, budgets }) {
   const categoryForecast = useMemo(() => {
     const months = getMonthRange(3);
     const result = [];
-    [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES].forEach((cat) => {
-      const catType = INCOME_CATEGORIES.includes(cat) ? 'income' : 'expense';
+    [...getIncomeCategories(categories), ...getExpenseCategories(categories)].forEach((cat) => {
+      const catType = getIncomeCategories(categories).includes(cat) ? 'income' : 'expense';
       const vals = months.map((m) =>
         sumBy(transactions.filter((t) => t.categoryId === cat.id && t.date?.startsWith(m)), 'amount')
       );

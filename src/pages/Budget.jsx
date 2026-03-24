@@ -5,7 +5,7 @@ import Input from '../components/ui/Input';
 import Modal from '../components/ui/Modal';
 import {
   fmtMoney, fmtShort, fmtMonth, getCurrentMonth, getMonthRange,
-  getCategoryById, sumBy, INCOME_CATEGORIES, EXPENSE_CATEGORIES,
+  getCategoryById, sumBy, getIncomeCategories, getExpenseCategories,
 } from '../utils';
 
 function ProgressBar({ actual, planned, color }) {
@@ -76,7 +76,7 @@ function BudgetSection({ title, categories, budgets, transactions, month, color,
   );
 }
 
-export default function Budget({ transactions, budgets, onUpdateBudget }) {
+export default function Budget({ transactions, budgets, categories, onUpdateBudget }) {
   const [month, setMonth] = useState(getCurrentMonth());
   const [editCat, setEditCat] = useState(null);
   const [editAmount, setEditAmount] = useState(0);
@@ -88,11 +88,11 @@ export default function Budget({ transactions, budgets, onUpdateBudget }) {
     const incomeActual = sumBy(mt.filter((t) => t.type === 'income'), 'amount');
     const expenseActual = sumBy(mt.filter((t) => t.type === 'expense'), 'amount');
     const incomePlanned = sumBy(
-      mb.filter((b) => getCategoryById(b.categoryId)?.type === 'income'),
+      mb.filter((b) => getCategoryById(b.categoryId, categories)?.type === 'income'),
       'plannedAmount'
     );
     const expensePlanned = sumBy(
-      mb.filter((b) => getCategoryById(b.categoryId)?.type === 'expense'),
+      mb.filter((b) => getCategoryById(b.categoryId, categories)?.type === 'expense'),
       'plannedAmount'
     );
     return { incomeActual, expenseActual, incomePlanned, expensePlanned };
@@ -149,7 +149,7 @@ export default function Budget({ transactions, budgets, onUpdateBudget }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <BudgetSection
           title="Thu nhập"
-          categories={INCOME_CATEGORIES}
+          categories={getIncomeCategories(categories)}
           budgets={budgets}
           transactions={transactions}
           month={month}
@@ -158,7 +158,7 @@ export default function Budget({ transactions, budgets, onUpdateBudget }) {
         />
         <BudgetSection
           title="Chi phí"
-          categories={EXPENSE_CATEGORIES}
+          categories={getExpenseCategories(categories)}
           budgets={budgets}
           transactions={transactions}
           month={month}
@@ -170,7 +170,7 @@ export default function Budget({ transactions, budgets, onUpdateBudget }) {
       <Modal
         open={!!editCat}
         onClose={() => setEditCat(null)}
-        title={`Sửa ngân sách - ${getCategoryById(editCat)?.name || ''}`}
+        title={`Sửa ngân sách - ${getCategoryById(editCat, categories)?.name || ''}`}
         width={360}
       >
         <Input label="Số tiền kế hoạch (VNĐ)" type="number" value={editAmount}
