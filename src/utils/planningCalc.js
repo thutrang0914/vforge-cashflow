@@ -39,6 +39,9 @@ export function computeProjection(vars, startMonth) {
     const softwareCost = Math.round(vars.softwareCost * inflationFactor);
 
     // Variable costs
+    const teacherSalaryCost = Math.round(
+      (vars.teacherCount || 0) * (vars.avgTeacherSalary || 0) * inflationFactor
+    );
     const materialCost = Math.round(robotRevenue * vars.materialPctOfRobotSales / 100);
 
     const varGrowFactor = Math.pow(1 + vars.variableCostGrowthPct / 100, m);
@@ -51,7 +54,7 @@ export function computeProjection(vars, startMonth) {
 
     const operationsCost = Math.round(vars.operationsCost * varGrowFactor);
 
-    const expenseBeforeTax = salaryCost + rentCost + softwareCost + materialCost + marketingCost + operationsCost;
+    const expenseBeforeTax = salaryCost + rentCost + softwareCost + teacherSalaryCost + materialCost + marketingCost + operationsCost;
     const profitBeforeTax = totalRevenue - expenseBeforeTax;
     const taxCost = Math.round(Math.max(0, profitBeforeTax) * vars.taxPctOfProfit / 100);
 
@@ -78,6 +81,7 @@ export function computeProjection(vars, startMonth) {
       salaryCost,
       rentCost,
       softwareCost,
+      teacherSalaryCost,
       materialCost,
       marketingCost,
       operationsCost,

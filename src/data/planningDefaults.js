@@ -27,6 +27,8 @@ export const DEFAULT_VARIABLES = {
   softwareCost: 5_000_000,
 
   // Variable costs
+  teacherCount: 5,
+  avgTeacherSalary: 10_000_000,
   materialPctOfRobotSales: 40,
   marketingMode: 'fixed',
   marketingFixed: 10_000_000,
@@ -113,6 +115,8 @@ export const VARIABLE_GROUPS = [
     title: 'Chi phí biến đổi',
     icon: '📊',
     fields: [
+      { key: 'teacherCount', label: 'Số giáo viên', unit: 'người', step: 1 },
+      { key: 'avgTeacherSalary', label: 'Lương TB/giáo viên', unit: 'đ/tháng', step: 500000 },
       { key: 'materialPctOfRobotSales', label: 'NVL (% DT robot)', unit: '%', step: 1 },
       { key: 'marketingMode', label: 'Marketing mode', unit: '', type: 'select',
         options: [{ value: 'fixed', label: 'Cố định' }, { value: 'pct', label: '% doanh thu' }] },

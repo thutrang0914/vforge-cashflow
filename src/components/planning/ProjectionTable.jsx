@@ -36,7 +36,7 @@ export default function ProjectionTable({ rows, breakEvenMonth }) {
           <thead>
             <tr style={{ background: T.bg }}>
               {['Tháng', 'Học phí', 'Robot', 'Sub', 'Staffing', 'Tổng thu',
-                'Lương', 'Mặt bằng', 'NVL', 'Marketing', 'Vận hành', 'Thuế', 'Tổng chi',
+                'Lương NV', 'Mặt bằng', 'Lương GV', 'NVL', 'Marketing', 'Vận hành', 'Thuế', 'Tổng chi',
                 'Dòng tiền', 'Lũy kế'].map((h, i) => (
                 <th key={i} style={{
                   padding: '8px 10px', textAlign: i === 0 ? 'left' : 'right',
@@ -75,6 +75,7 @@ export default function ProjectionTable({ rows, breakEvenMonth }) {
                   <Cell value={r.totalRevenue} color={T.green} bold />
                   <Cell value={r.salaryCost} color={T.red} />
                   <Cell value={r.rentCost} color={T.red} />
+                  <Cell value={r.teacherSalaryCost} color={T.red} />
                   <Cell value={r.materialCost} color={T.red} />
                   <Cell value={r.marketingCost} color={T.red} />
                   <Cell value={r.operationsCost} color={T.red} />
@@ -103,6 +104,7 @@ export default function ProjectionTable({ rows, breakEvenMonth }) {
                 rows.reduce((s, r) => s + r.totalRevenue, 0),
                 rows.reduce((s, r) => s + r.salaryCost, 0),
                 rows.reduce((s, r) => s + r.rentCost, 0),
+                rows.reduce((s, r) => s + r.teacherSalaryCost, 0),
                 rows.reduce((s, r) => s + r.materialCost, 0),
                 rows.reduce((s, r) => s + r.marketingCost, 0),
                 rows.reduce((s, r) => s + r.operationsCost, 0),
@@ -111,8 +113,8 @@ export default function ProjectionTable({ rows, breakEvenMonth }) {
                 rows.reduce((s, r) => s + r.netCashflow, 0),
               ].map((v, i) => {
                 const isRevCol = i < 5;
-                const isExpCol = i >= 5 && i < 12;
-                const isNet = i === 12;
+                const isExpCol = i >= 5 && i < 13;
+                const isNet = i === 13;
                 return (
                   <td key={i} style={{
                     padding: '8px 10px', fontSize: 12, fontWeight: 700, textAlign: 'right',
