@@ -8,11 +8,13 @@ import Transactions from './pages/Transactions';
 import Budget from './pages/Budget';
 import Reports from './pages/Reports';
 import Forecast from './pages/Forecast';
+import Planning from './pages/Planning';
 
 export default function App() {
   const [page, setPage] = useState(() => localStorage.getItem('vf_page') || 'dashboard');
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [planningAssumptions, setPlanningAssumptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,8 +38,12 @@ export default function App() {
           bds = await db.fetchAll('budgets');
         }
 
+        let plans = [];
+        try { plans = await db.fetchAll('planning_assumptions'); } catch {}
+
         setTransactions(txs);
         setBudgets(bds);
+        setPlanningAssumptions(plans);
       } catch (err) {
         console.error('Load error:', err);
         const seed = generateSeedData();
@@ -92,6 +98,21 @@ export default function App() {
     }
   }, [budgets]);
 
+  const handleSavePlanningAssumption = useCallback(async (assumption) => {
+    try {
+      const existing = planningAssumptions.find((a) => a.scenarioName === assumption.scenarioName);
+      if (existing) {
+        const saved = await db.update('planning_assumptions', existing.id, assumption);
+        if (saved) setPlanningAssumptions((prev) => prev.map((a) => (a.id === existing.id ? saved : a)));
+      } else {
+        const saved = await db.insert('planning_assumptions', assumption);
+        setPlanningAssumptions((prev) => [...prev, saved]);
+      }
+    } catch (err) {
+      console.error('Planning save error:', err);
+    }
+  }, [planningAssumptions]);
+
   if (loading) {
     return (
       <div style={{
@@ -131,6 +152,13 @@ export default function App() {
         return <Reports transactions={transactions} />;
       case 'forecast':
         return <Forecast transactions={transactions} budgets={budgets} />;
+      case 'planning':
+        return (
+          <Planning
+            assumptions={planningAssumptions}
+            onSaveAssumption={handleSavePlanningAssumption}
+          />
+        );
       default:
         return <Dashboard transactions={transactions} budgets={budgets} />;
     }

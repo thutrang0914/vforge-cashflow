@@ -6,6 +6,7 @@ const NAV = [
   { id: 'transactions', label: 'Giao dịch', icon: '💳' },
   { id: 'budget', label: 'Ngân sách', icon: '🎯' },
   { id: 'reports', label: 'Báo cáo', icon: '📈' },
+  { id: 'planning', label: 'Kế hoạch', icon: '📋' },
   { id: 'forecast', label: 'Dự báo', icon: '🔮' },
 ];
 
