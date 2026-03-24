@@ -61,6 +61,7 @@ function TransactionForm({ tx, onSave, onClose, categories }) {
 export default function Transactions({ transactions, categories, onAdd, onUpdate, onDelete }) {
   const [showForm, setShowForm] = useState(false);
   const [editTx, setEditTx] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [monthFilter, setMonthFilter] = useState('all');
@@ -122,7 +123,7 @@ export default function Transactions({ transactions, categories, onAdd, onUpdate
             ✏️
           </Btn>
           <Btn variant="ghost" style={{ padding: '4px 8px', fontSize: 12 }}
-            onClick={(e) => { e.stopPropagation(); onDelete(row.id); }}>
+            onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(row.id); }}>
             🗑️
           </Btn>
         </div>
@@ -196,6 +197,48 @@ export default function Transactions({ transactions, categories, onAdd, onUpdate
           onSave={handleSave}
           onClose={() => { setShowForm(false); setEditTx(null); }}
         />
+      </Modal>
+
+      <Modal
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        title="Xác nhận xóa"
+        width={360}
+      >
+        {(() => {
+          const tx = transactions.find((t) => t.id === confirmDeleteId);
+          const cat = tx ? getCategoryById(tx.categoryId, categories) : null;
+          return (
+            <div>
+              <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 8 }}>
+                Bạn có chắc muốn xóa giao dịch này?
+              </p>
+              {tx && (
+                <div style={{
+                  padding: '10px 14px', borderRadius: T.radiusSm,
+                  background: T.bg, border: `1px solid ${T.border}`, marginBottom: 16,
+                  fontSize: 13,
+                }}>
+                  <div style={{ color: T.text, fontWeight: 500, marginBottom: 4 }}>
+                    {cat ? `${cat.icon} ${cat.name}` : tx.categoryId}
+                  </div>
+                  <div style={{ color: tx.type === 'income' ? T.green : T.red, fontWeight: 600 }}>
+                    {tx.type === 'income' ? '+' : '-'}{fmtMoney(tx.amount)}
+                  </div>
+                  {tx.description && (
+                    <div style={{ color: T.textMuted, fontSize: 12, marginTop: 2 }}>{tx.description}</div>
+                  )}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <Btn variant="ghost" onClick={() => setConfirmDeleteId(null)}>Hủy</Btn>
+                <Btn variant="danger" onClick={() => { onDelete(confirmDeleteId); setConfirmDeleteId(null); }}>
+                  Xóa
+                </Btn>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );
