@@ -1,9 +1,30 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import T from '../../theme';
-import { fmt } from '../../utils';
 import { VARIABLE_GROUPS } from '../../data/planningDefaults';
 
+// Format số theo chuẩn kế toán Việt Nam: dấu chấm ngăn hàng nghìn, dấu phẩy thập phân
+const fmtVN = (n) => {
+  if (n === '' || n === null || n === undefined) return '';
+  const num = Number(n);
+  if (isNaN(num)) return '';
+  const parts = num.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts.join(',');
+};
+
+// Parse chuỗi VN format về số
+const parseVN = (str) => {
+  if (!str) return 0;
+  const cleaned = str.replace(/\./g, '').replace(/,/g, '.');
+  const num = Number(cleaned);
+  return isNaN(num) ? 0 : num;
+};
+
 function VariableInput({ field, value, onChange }) {
+  const [editing, setEditing] = useState(false);
+  const [rawValue, setRawValue] = useState('');
+  const inputRef = useRef(null);
+
   if (field.type === 'select') {
     return (
       <select
@@ -22,18 +43,66 @@ function VariableInput({ field, value, onChange }) {
     );
   }
 
+  // Số nhỏ (%, người, cái) → input number bình thường
+  const isSmallNumber = (field.step || 1) < 1000 && !field.unit?.includes('đ') && !field.unit?.includes('VND');
+
+  if (isSmallNumber) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <input
+          type="number"
+          value={value}
+          step={field.step || 1}
+          onChange={(e) => onChange(field.key, Number(e.target.value))}
+          style={{
+            width: '100%', padding: '6px 8px', borderRadius: T.radiusSm,
+            border: `1px solid ${T.border}`, background: T.bg,
+            color: T.text, fontSize: 12, outline: 'none',
+            boxSizing: 'border-box',
+          }}
+        />
+        {field.unit && (
+          <span style={{ fontSize: 10, color: T.textMuted, whiteSpace: 'nowrap', minWidth: 40 }}>
+            {field.unit}
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // Số lớn (VNĐ) → text input với format dấu chấm hàng nghìn
+  const displayValue = editing ? rawValue : fmtVN(value);
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <input
-        type="number"
-        value={value}
-        step={field.step || 1}
-        onChange={(e) => onChange(field.key, Number(e.target.value))}
+        ref={inputRef}
+        type="text"
+        inputMode="numeric"
+        value={displayValue}
+        onFocus={() => {
+          setEditing(true);
+          setRawValue(value.toString());
+        }}
+        onChange={(e) => {
+          const v = e.target.value.replace(/[^0-9.,]/g, '');
+          setRawValue(v);
+        }}
+        onBlur={() => {
+          setEditing(false);
+          const parsed = parseVN(rawValue);
+          onChange(field.key, parsed);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.target.blur();
+          }
+        }}
         style={{
           width: '100%', padding: '6px 8px', borderRadius: T.radiusSm,
           border: `1px solid ${T.border}`, background: T.bg,
           color: T.text, fontSize: 12, outline: 'none',
-          boxSizing: 'border-box',
+          boxSizing: 'border-box', textAlign: 'right',
         }}
       />
       {field.unit && (
