@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import T from './theme';
 import { db } from './supabase';
-import { generateSeedData } from './data/seed';
 import { DEFAULT_ALL_CATEGORIES } from './utils';
 import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -46,16 +45,6 @@ export default function App() {
         let txs = await db.fetchAll('transactions');
         let bds = await db.fetchAll('budgets');
 
-        if (!txs.length) {
-          const seed = generateSeedData();
-          txs = seed.transactions;
-          bds = seed.budgets;
-          for (const t of txs) await db.insert('transactions', t);
-          for (const b of bds) await db.insert('budgets', b);
-          txs = await db.fetchAll('transactions');
-          bds = await db.fetchAll('budgets');
-        }
-
         let plans = [];
         try { plans = await db.fetchAll('planning_assumptions'); } catch {}
         let cats = [];
@@ -67,9 +56,6 @@ export default function App() {
         setCustomCategories(cats);
       } catch (err) {
         console.error('Load error:', err);
-        const seed = generateSeedData();
-        setTransactions(seed.transactions);
-        setBudgets(seed.budgets);
       } finally {
         setLoading(false);
       }
