@@ -188,7 +188,7 @@ export default function VariablePanel({ variables, onChange }) {
           group={group}
           variables={variables}
           onChange={onChange}
-          defaultExpanded={i === 0}
+          defaultExpanded={i === 0 || group.key === 'initialInvestment'}
         />
       ))}
     </div>

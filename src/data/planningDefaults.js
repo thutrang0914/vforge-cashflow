@@ -85,6 +85,16 @@ export function getScenarioDefaults(scenarioName) {
 
 export const VARIABLE_GROUPS = [
   {
+    key: 'initialInvestment',
+    title: 'Vốn & Đầu tư ban đầu',
+    icon: '🏗️',
+    fields: [
+      { key: 'initialCapital', label: 'Tổng vốn góp ban đầu', unit: 'đ', step: 10_000_000 },
+      { key: 'fixedAssetInvestment', label: 'Đầu tư TSCĐ ban đầu', unit: 'đ', step: 10_000_000 },
+      { key: 'fixedAssetDepreciationYears', label: 'Khấu hao TSCĐ', unit: 'năm', step: 1 },
+    ],
+  },
+  {
     key: 'revenue',
     title: 'Thu nhập',
     icon: '📈',
@@ -132,16 +142,6 @@ export const VARIABLE_GROUPS = [
       { key: 'operationsCost', label: 'Vận hành', unit: 'đ/tháng', step: 500000 },
       { key: 'taxPctOfProfit', label: 'Thuế (% lợi nhuận)', unit: '%', step: 1 },
       { key: 'variableCostGrowthPct', label: 'Tăng trưởng CP biến đổi', unit: '%/tháng', step: 0.5 },
-    ],
-  },
-  {
-    key: 'initialInvestment',
-    title: 'Vốn & Đầu tư ban đầu',
-    icon: '🏗️',
-    fields: [
-      { key: 'initialCapital', label: 'Tổng vốn góp ban đầu', unit: 'đ', step: 10_000_000 },
-      { key: 'fixedAssetInvestment', label: 'Đầu tư TSCĐ ban đầu', unit: 'đ', step: 10_000_000 },
-      { key: 'fixedAssetDepreciationYears', label: 'Khấu hao TSCĐ', unit: 'năm', step: 1 },
     ],
   },
   {
