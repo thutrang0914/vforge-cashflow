@@ -1,9 +1,17 @@
 export function computeProjection(vars, startMonth) {
   const rows = [];
-  let cumulative = 0;
   let breakEvenMonth = -1;
 
   const [startY, startM] = startMonth.split('-').map(Number);
+
+  // Initial capital & fixed assets
+  const initialCapital = vars.initialCapital || 0;
+  const fixedAssetInvestment = vars.fixedAssetInvestment || 0;
+  const depYears = vars.fixedAssetDepreciationYears || 5;
+  const monthlyDepreciation = depYears > 0 ? Math.round(fixedAssetInvestment / (depYears * 12)) : 0;
+
+  // Cumulative starts with initial capital minus fixed asset investment
+  let cumulative = initialCapital - fixedAssetInvestment;
 
   for (let m = 0; m < 12; m++) {
     const dt = new Date(startY, startM - 1 + m + 1, 1);
@@ -54,12 +62,16 @@ export function computeProjection(vars, startMonth) {
 
     const operationsCost = Math.round(vars.operationsCost * varGrowFactor);
 
-    const expenseBeforeTax = salaryCost + rentCost + softwareCost + teacherSalaryCost + materialCost + marketingCost + operationsCost;
+    // Depreciation (non-cash but affects profit)
+    const depreciationCost = monthlyDepreciation;
+
+    const expenseBeforeTax = salaryCost + rentCost + softwareCost + teacherSalaryCost + materialCost + marketingCost + operationsCost + depreciationCost;
     const profitBeforeTax = totalRevenue - expenseBeforeTax;
     const taxCost = Math.round(Math.max(0, profitBeforeTax) * vars.taxPctOfProfit / 100);
 
     const totalExpense = expenseBeforeTax + taxCost;
-    const netCashflow = totalRevenue - totalExpense;
+    // Cashflow: add back depreciation (non-cash expense)
+    const netCashflow = totalRevenue - totalExpense + depreciationCost;
     cumulative += netCashflow;
 
     if (breakEvenMonth < 0 && cumulative >= 0 && m > 0) {
@@ -85,6 +97,7 @@ export function computeProjection(vars, startMonth) {
       materialCost,
       marketingCost,
       operationsCost,
+      depreciationCost,
       taxCost,
       totalExpense,
 
@@ -110,6 +123,10 @@ export function computeProjection(vars, startMonth) {
       avgMonthlyProfit,
       breakEvenMonth,
       finalCumulative: cumulative,
+      initialCapital,
+      fixedAssetInvestment,
+      netInitialCash: initialCapital - fixedAssetInvestment,
+      monthlyDepreciation,
     },
   };
 }

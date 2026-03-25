@@ -37,6 +37,11 @@ export const DEFAULT_VARIABLES = {
   taxPctOfProfit: 20,
   variableCostGrowthPct: 2,
 
+  // Initial capital & fixed assets
+  initialCapital: 500_000_000,
+  fixedAssetInvestment: 300_000_000,
+  fixedAssetDepreciationYears: 5,
+
   // Other
   costInflationPct: 0.5,
 };
@@ -127,6 +132,16 @@ export const VARIABLE_GROUPS = [
       { key: 'operationsCost', label: 'Vận hành', unit: 'đ/tháng', step: 500000 },
       { key: 'taxPctOfProfit', label: 'Thuế (% lợi nhuận)', unit: '%', step: 1 },
       { key: 'variableCostGrowthPct', label: 'Tăng trưởng CP biến đổi', unit: '%/tháng', step: 0.5 },
+    ],
+  },
+  {
+    key: 'initialInvestment',
+    title: 'Vốn & Đầu tư ban đầu',
+    icon: '🏗️',
+    fields: [
+      { key: 'initialCapital', label: 'Tổng vốn góp ban đầu', unit: 'đ', step: 10_000_000 },
+      { key: 'fixedAssetInvestment', label: 'Đầu tư TSCĐ ban đầu', unit: 'đ', step: 10_000_000 },
+      { key: 'fixedAssetDepreciationYears', label: 'Khấu hao TSCĐ', unit: 'năm', step: 1 },
     ],
   },
   {

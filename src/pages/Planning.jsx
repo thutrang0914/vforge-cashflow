@@ -87,6 +87,32 @@ export default function Planning({ assumptions, onSaveAssumption }) {
 
         {/* Right: Results */}
         <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Initial Capital Stats */}
+          <div style={{
+            display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12,
+            padding: '12px 16px', borderRadius: T.radius,
+            background: T.primaryLight, border: `1px solid ${T.primary}30`,
+          }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ fontSize: 11, color: T.textMuted }}>Vốn góp ban đầu</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: T.primary }}>{fmtShort(summary.initialCapital)}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ fontSize: 11, color: T.textMuted }}>Đầu tư TSCĐ</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: T.orange }}>{fmtShort(summary.fixedAssetInvestment)}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ fontSize: 11, color: T.textMuted }}>Tiền mặt còn lại</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: summary.netInitialCash >= 0 ? T.green : T.red }}>
+                {fmtShort(summary.netInitialCash)}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ fontSize: 11, color: T.textMuted }}>Khấu hao/tháng</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: T.textSecondary }}>{fmtShort(summary.monthlyDepreciation)}</div>
+            </div>
+          </div>
+
           {/* Summary Stats */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
             <Stat
@@ -117,6 +143,7 @@ export default function Planning({ assumptions, onSaveAssumption }) {
               }
               color={summary.breakEvenMonth >= 0 || rows[0]?.cumulativeCashflow >= 0 ? T.green : T.orange}
               icon="🎯"
+              sub={`Lũy kế cuối kỳ: ${fmtShort(summary.finalCumulative)}`}
             />
           </div>
 
